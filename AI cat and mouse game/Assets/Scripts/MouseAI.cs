@@ -14,21 +14,19 @@ public class MouseAI : MonoBehaviour
     private NavMeshAgent navMeshAgent;
     private bool isCatVisible = false;
 
+    private LineRenderer lineRenderer;
+
     private void Start()
     {
+        lineRenderer = GetComponent<LineRenderer>();
         navMeshAgent = GetComponent<NavMeshAgent>();
         navMeshAgent.updateRotation = false;
         navMeshAgent.updateUpAxis = false;
+        navMeshAgent.SetDestination(cheeses[currentCheeseIndex].position);
     }
 
     private void Update()
     {
-        if (cheeses.Length == 0)
-        {
-            Debug.Log("No cheeses available. Mouse has won!");
-            return;
-        }
-
         // Check if cat is within visibility range
         isCatVisible = false;
         foreach (Transform cat in hidingSpots)
@@ -36,9 +34,23 @@ public class MouseAI : MonoBehaviour
             float distance = Vector3.Distance(transform.position, cat.position);
             if (distance <= visibilityRange)
             {
-                isCatVisible = true;
-                break;
+                RaycastHit2D hit = Physics2D.Raycast(transform.position, cat.position - transform.position, distance);
+                if (hit.collider != null && hit.collider.transform.CompareTag("Cat"))
+                {
+                    isCatVisible = true;
+                    break;
+                }
             }
+        }
+
+        if(navMeshAgent.hasPath)
+        {
+            lineRenderer.positionCount = navMeshAgent.path.corners.Length;
+            lineRenderer.SetPositions(navMeshAgent.path.corners);
+        }
+        else
+        {
+            lineRenderer.positionCount = 0;
         }
 
         // Find the closest hiding spot if the cat is visible
@@ -53,23 +65,20 @@ public class MouseAI : MonoBehaviour
         else
         {
             // If the cat is not visible, move towards the current cheese
-            Transform targetCheese = GetClosestCheese();
-            if (targetCheese != null)
+            if (cheeses.Length > 0 && Vector3.Distance(transform.position, cheeses[currentCheeseIndex].position) < navMeshAgent.stoppingDistance)
             {
-                navMeshAgent.SetDestination(targetCheese.position);
-            }
-        }
+                // Remove the cheese from the scene
+                Destroy(cheeses[currentCheeseIndex].gameObject);
+                currentCheeseIndex++;
 
-        // Check if reached the current cheese
-        if (Vector3.Distance(transform.position, cheeses[currentCheeseIndex].position) < navMeshAgent.stoppingDistance)
-        {
-            // Remove the cheese from the scene
-            Destroy(cheeses[currentCheeseIndex].gameObject);
-            currentCheeseIndex++;
-
-            if (currentCheeseIndex >= cheeses.Length)
-            {
-                Debug.Log("All cheeses eaten. Mouse has won!");
+                if (currentCheeseIndex < cheeses.Length)
+                {
+                    navMeshAgent.SetDestination(cheeses[currentCheeseIndex].position);
+                }
+                else
+                {
+                    Debug.Log("All cheeses eaten. Mouse has won!");
+                }
             }
         }
     }
@@ -84,42 +93,40 @@ public class MouseAI : MonoBehaviour
             float distance = Vector3.Distance(transform.position, spot.position);
             if (distance < closestDistance)
             {
-                closestDistance = distance;
-                closestSpot = spot;
+                RaycastHit2D hit = Physics2D.Raycast(transform.position, spot.position - transform.position, distance);
+                if (hit.collider != null && hit.collider.transform == spot)
+                {
+                    closestDistance = distance;
+                    closestSpot = spot;
+                }
             }
         }
 
         return closestSpot;
     }
 
-    private Transform GetClosestCheese()
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        Transform closestCheese = null;
-        float closestDistance = Mathf.Infinity;
-
-        foreach (Transform cheese in cheeses)
+        if (collision.gameObject.CompareTag("Cat"))
         {
-            float distance = Vector3.Distance(transform.position, cheese.position);
-            if (distance < closestDistance && !IsCatVisibleFromPosition(cheese.position))
-            {
-                closestDistance = distance;
-                closestCheese = cheese;
-            }
+            Destroy(gameObject);
         }
-
-        return closestCheese;
     }
 
-    private bool IsCatVisibleFromPosition(Vector3 position)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        foreach (Transform cat in hidingSpots)
+        if (other.gameObject.CompareTag("Cheese"))
         {
-            float distance = Vector3.Distance(position, cat.position);
-            if (distance <= visibilityRange)
+            Destroy(other.gameObject);
+            currentCheeseIndex++;
+            if (currentCheeseIndex < cheeses.Length)
             {
-                return true;
+                navMeshAgent.SetDestination(cheeses[currentCheeseIndex].position);
+            }
+            else
+            {
+                Debug.Log("All cheeses eaten. Mouse has won!");
             }
         }
-        return false;
     }
 }
