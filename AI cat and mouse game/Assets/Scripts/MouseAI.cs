@@ -17,6 +17,8 @@ public class MouseAI : MonoBehaviour
     private void Start()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
+        navMeshAgent.updateRotation = false;
+        navMeshAgent.updateUpAxis = false;
     }
 
     private void Update()
@@ -51,7 +53,11 @@ public class MouseAI : MonoBehaviour
         else
         {
             // If the cat is not visible, move towards the current cheese
-            navMeshAgent.SetDestination(cheeses[currentCheeseIndex].position);
+            Transform targetCheese = GetClosestCheese();
+            if (targetCheese != null)
+            {
+                navMeshAgent.SetDestination(targetCheese.position);
+            }
         }
 
         // Check if reached the current cheese
@@ -84,5 +90,36 @@ public class MouseAI : MonoBehaviour
         }
 
         return closestSpot;
+    }
+
+    private Transform GetClosestCheese()
+    {
+        Transform closestCheese = null;
+        float closestDistance = Mathf.Infinity;
+
+        foreach (Transform cheese in cheeses)
+        {
+            float distance = Vector3.Distance(transform.position, cheese.position);
+            if (distance < closestDistance && !IsCatVisibleFromPosition(cheese.position))
+            {
+                closestDistance = distance;
+                closestCheese = cheese;
+            }
+        }
+
+        return closestCheese;
+    }
+
+    private bool IsCatVisibleFromPosition(Vector3 position)
+    {
+        foreach (Transform cat in hidingSpots)
+        {
+            float distance = Vector3.Distance(position, cat.position);
+            if (distance <= visibilityRange)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

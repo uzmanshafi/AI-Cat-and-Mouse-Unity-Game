@@ -5,40 +5,59 @@ using UnityEngine.AI;
 
 public class CatAI : MonoBehaviour
 {
-    public Transform mouse;
     public float visibilityRange = 5f;
     public float movementSpeed = 3f;
+    public float patrolAreaRadius = 10f;
 
-    private Vector3 originalPosition;
+    private Transform mouse;
     private NavMeshAgent navMeshAgent;
-    private bool isMouseSpotted = false;
+    private bool isMouseVisible = false;
+    private Vector3 randomPatrolDestination;
 
     private void Start()
     {
-        originalPosition = transform.position;
+        mouse = GameObject.FindGameObjectWithTag("Mouse").transform;
+
         navMeshAgent = GetComponent<NavMeshAgent>();
+        navMeshAgent.updateRotation = false;
+        navMeshAgent.updateUpAxis = false;
+
+        SetRandomPatrolDestination();
     }
 
     private void Update()
     {
-        // Check if mouse is within visibility range
-        if (mouse != null && !isMouseSpotted)
+        // Check if the mouse is within visibility range
+        isMouseVisible = false;
+        float distanceToMouse = Vector3.Distance(transform.position, mouse.position);
+        if (distanceToMouse <= visibilityRange)
         {
-            float distance = Vector3.Distance(transform.position, mouse.position);
-            if (distance <= visibilityRange)
-            {
-                isMouseSpotted = true;
-                navMeshAgent.SetDestination(mouse.position);
-            }
+            isMouseVisible = true;
         }
 
-        // Check if reached the mouse
-        if (isMouseSpotted && navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
+        // Chase the mouse if it is visible
+        if (isMouseVisible)
         {
-            // Remove the mouse game object from the scene
-            Destroy(mouse.gameObject);
-            isMouseSpotted = false;
-            navMeshAgent.SetDestination(originalPosition);
+            navMeshAgent.SetDestination(mouse.position);
         }
+        else
+        {
+            // Continue patrolling if the mouse is not visible
+            if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance < 0.1f)
+            {
+                SetRandomPatrolDestination();
+            }
+        }
+    }
+
+    private void SetRandomPatrolDestination()
+    {
+        Vector3 randomDirection = Random.insideUnitSphere * patrolAreaRadius;
+        randomDirection += transform.position;
+        NavMeshHit navHit;
+        NavMesh.SamplePosition(randomDirection, out navHit, patrolAreaRadius, -1);
+        randomPatrolDestination = navHit.position;
+
+        navMeshAgent.SetDestination(randomPatrolDestination);
     }
 }
