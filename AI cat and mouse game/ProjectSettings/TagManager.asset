@@ -7,11 +7,12 @@ TagManager:
   - Mouse
   - Cat
   - Cheese
+  - HidingSpots
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Obsticle
   - Water
   - UI
   - 
