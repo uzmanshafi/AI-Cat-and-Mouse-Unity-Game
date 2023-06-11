@@ -16,12 +16,16 @@ public class CatAIController : MonoBehaviour
 
     public Rigidbody2D rb;
 
+    public bool isPatrolling = true;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
     }
     // Update is called once per frame
     void Update()
+{
+    if (isPatrolling)
     {
         if (transform.position != patrollingPoints[currentPositionIndex].position)
         {
@@ -37,6 +41,8 @@ public class CatAIController : MonoBehaviour
         
         Flip();
     }
+}
+
 
     void Flip()
     {
