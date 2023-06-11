@@ -7,15 +7,15 @@ public class VerminMasterAI : MonoBehaviour
 {
     [Header("Pathfinding")]
     public List<Transform> CheeseTargets;
-    public float activateDistance = 10f;
+    public float activateDistance = 20f;
     public float pathUpdateSeconds = 0.5f;
 
     [Header("Physics")]
-    public float speed = 200f;
+    public float speed = 4f;
     public float nextWaypointDistance = 3f;
 
     [Header("Custom Behavior")]
-    public bool findClosestCheese = false;
+    public bool findClosestCheese = true;
     public bool directionBasedOnVelocity = true;
 
     private Path path;
@@ -29,16 +29,17 @@ public class VerminMasterAI : MonoBehaviour
     {
         seeker = GetComponent<Seeker>();
         rb = GetComponent<Rigidbody2D>();
+        targetCheese = FindClosestCheese();
 
         InvokeRepeating("UpdatePath", 0f, pathUpdateSeconds);
     }
 
     void UpdatePath()
     {
-        if(findClosestCheese && seeker.IsDone())
+        if (findClosestCheese && seeker.IsDone())
         {
             targetCheese = FindClosestCheese();
-            if(targetCheese != null)
+            if (targetCheese != null)
             {
                 seeker.StartPath(rb.position, targetCheese.position, OnPathComplete);
             }
@@ -55,24 +56,24 @@ public class VerminMasterAI : MonoBehaviour
 
     void PathFollow()
     {
-        if(path == null)
+        if (path == null)
         {
             return;
         }
 
-        if(currentWaypoint >= path.vectorPath.Count)
+        if (currentWaypoint >= path.vectorPath.Count)
         {
             reachedEndOfPath = true;
             return;
-        } else
+        }
+        else
         {
             reachedEndOfPath = false;
         }
 
         Vector2 direction = ((Vector2)path.vectorPath[currentWaypoint] - rb.position).normalized;
-        Vector2 force = direction * speed * Time.deltaTime;
 
-        rb.AddForce(force);
+        rb.velocity = direction * speed;
 
         float distance = Vector2.Distance(rb.position, path.vectorPath[currentWaypoint]);
         if (distance < nextWaypointDistance)
@@ -82,11 +83,11 @@ public class VerminMasterAI : MonoBehaviour
 
         if (directionBasedOnVelocity)
         {
-            if(rb.velocity.x >= 0.01f)
+            if (rb.velocity.x >= 0.01f)
             {
                 transform.localScale = new Vector3(-0.5f, 0.5f, 0.5f);
-            } 
-            else if(rb.velocity.x <= -0.01f)
+            }
+            else if (rb.velocity.x <= -0.01f)
             {
                 transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
             }
@@ -107,7 +108,7 @@ public class VerminMasterAI : MonoBehaviour
 
     void OnPathComplete(Path p)
     {
-        if(!p.error)
+        if (!p.error)
         {
             path = p;
             currentWaypoint = 0;
@@ -120,11 +121,11 @@ public class VerminMasterAI : MonoBehaviour
         float closestDistance = Mathf.Infinity;
         Vector3 currentPosition = transform.position;
 
-        foreach(Transform cheeseTransform in CheeseTargets)
+        foreach (Transform cheeseTransform in CheeseTargets)
         {
             Vector3 directionToCheese = cheeseTransform.position - currentPosition;
             float dSqrToTarget = directionToCheese.sqrMagnitude;
-            if(dSqrToTarget < closestDistance)
+            if (dSqrToTarget < closestDistance)
             {
                 closestDistance = dSqrToTarget;
                 closestCheese = cheeseTransform;
@@ -134,11 +135,22 @@ public class VerminMasterAI : MonoBehaviour
         return closestCheese;
     }
 
-    private void OnCollisionTrigger2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.gameObject.tag == "Cheese")
+        Debug.Log("Triggered with " + collision.gameObject.name);
+
+        if (collision.gameObject.CompareTag("Cheese"))
         {
+            CheeseTargets.Remove(collision.transform);
             Destroy(collision.gameObject);
+
+            // Find next closest cheese
+            targetCheese = FindClosestCheese();
+            // If there is a new target, start path
+            if (targetCheese != null)
+            {
+                seeker.StartPath(rb.position, targetCheese.position, OnPathComplete);
+            }
         }
     }
 }
