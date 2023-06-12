@@ -86,27 +86,35 @@ public class VerminMasterAI : MonoBehaviour
             reachedEndOfPath = false;
         }
 
-        Vector2 direction = ((Vector2)path.vectorPath[currentWaypoint] - rb.position).normalized;
+        Vector2 currentPosition = rb.position;
+        Vector2 targetPosition = path.vectorPath[currentWaypoint];
+        Vector2 newPosition = Vector2.MoveTowards(currentPosition, targetPosition, speed * Time.fixedDeltaTime);
 
-        rb.velocity = direction * speed;  // directly set velocity
+        rb.MovePosition(newPosition);
 
         if (Vector2.Distance(rb.position, path.vectorPath[currentWaypoint]) <= nextWaypointDistance)
         {
             currentWaypoint++;
         }
 
-        if (directionBasedOnVelocity)
+        Flip();
+    }
+
+    void Flip()
+    {
+        if (path != null && currentWaypoint < path.vectorPath.Count)
         {
-            if (rb.velocity.x >= 0.01f)
+            if (rb.position.x < path.vectorPath[currentWaypoint].x)
             {
                 transform.localScale = new Vector3(-0.5f, 0.5f, 0.5f);
             }
-            else if (rb.velocity.x <= -0.01f)
+            else if (rb.position.x > path.vectorPath[currentWaypoint].x)
             {
-                transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+                transform.localScale = new Vector3(-0.5f, 0.5f, 0.5f);
             }
         }
     }
+
 
     private bool TargetInDistance()
     {
