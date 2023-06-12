@@ -264,6 +264,7 @@ MonoBehaviour:
   activateDistance: 20
   pathUpdateSeconds: 0.5
   speed: 4
+  maxSpeed: 8
   nextWaypointDistance: 3
   findClosestCheese: 1
   directionBasedOnVelocity: 1
@@ -387,7 +388,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 138593114}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 5.32, y: -2.04, z: 0}
+  m_LocalPosition: {x: 6.66, y: -0.15, z: 0}
   m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3334,7 +3335,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 715704602}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -5.664, y: -2.04, z: 0}
+  m_LocalPosition: {x: -5.664, y: -2.86, z: 0}
   m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3370,7 +3371,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 906778982}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.984, y: 0, z: 0}
+  m_LocalPosition: {x: -2.984, y: -0.06, z: 0}
   m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3701,7 +3702,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1
   data:
-    dataString: UEsDBBQAAAgIAABYIextRzHEXQIAABQFAAALACQAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQF1VEtz2jAQ/iuMzk3HhmTAvbUOIT0QmNBOLr4Ia401yJJHD14Z/ntXso1dOj2xfPvt7rcP+ZNwaWrIrdILzdlSMSDfRsTb5Muod77Cie6U3PALdJwPzmzpSTRw3qnlCvHYhxlVgdU8/y53wpMjBJ3khdLVnO0gVcYahAsqDKBLK+ujJUKfI3LCn4fEh5zRGk+9dUEriUZXNHOQFnRP7YgdrWE5mQta1cC85J48HrfseBxoEptpGV54roTgplVC7LkOnaa0Ng77QALjFDsL5aOvyQyREviutD71MH5VFAZsq0rT8zPXOKMmMfmhmsFV1OwbaQcqnC81C6KalMt/vA9xcBdaVa9d1TjyFWzJ8/07PefU2MFch/BzrzwO8zlSsadbAR8lyDe10MpJhk6rnQ91BsbP/d9bY2kJ+b7HG6l3oKv/vx3fwzX0fkoFr7ZhkI8NsBEqDDzsHjSu5icKDpdh2hSIehW/Dfyiu+EJtY4Xro1FV9ul9PK2ymlPJfMwM9+Ns6nSEgLciq5BUmHPa0xj7xd45xuUvfO8UP9Y2uKtr3sDdyEB7vlRdOdaq+NtWaZUxyWYcuWs4BJ60d7xhnNKlZTNfQ1n0oVtnC5oPgjbOc7+Pi0yY8kkKZ5oFCVJNBkXD1s2nUxiGsXTp2Kazx5JuD0usU8q1o3Qdjy4Ndknl3hn3TdktNC0DrfOND0u+KVSQ4FcFmqTawC5alLclIPGKvgu2ZxxnNAGrOUyLJx8ZkSofA8su9XMQqvzk9U067NkpOYHZT2SkTR8NTLi4dsxrzUcOBx98S7ZlVz/AFBLAwQUAAAICAAAWCHsHrQNaG0AAAB4AAAACQAkAG1ldGEuanNvbgoAIAAAAAAAAQAYAACAPtXesZ0BAIA+1d6xnQEAgD7V3rGdAatWKkstKs7Mz1OyUjDRM9IzNNdRUEovSizIKAaKGII4pZkpIHa0kkWKpbFlmmmigYGlpYGxUZpuUoq5sbFhooGhuWmaebKFiVIsUH1JZUGqX2JuKkRPQGJJRlpmXkpmXrqee1FmijvIaKXYWgBQSwECLQAUAAAICAAAWCHsbUcxxF0CAAAUBQAACwAkAAAAAAAAAAAAAAAAAAAAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQFQSwECLQAUAAAICAAAWCHsHrQNaG0AAAB4AAAACQAkAAAAAAAAAAAAAACqAgAAbWV0YS5qc29uCgAgAAAAAAABABgAAIA+1d6xnQEAgD7V3rGdAQCAPtXesZ0BUEsFBgAAAAACAAIAuAAAAGIDAAAAAA==
+    dataString: UEsDBBQAAAgIAABYIex0Z6yZXQIAABMFAAALACQAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQF1VEtz2jAQ/iuMzk3HhmTAvbUOIT0QmNBOLr4Ia401yJJHD14Z/ntXso1dOj2xfPvt7rcP+ZNwaWrIrdILzdlSMSDfRsTb5Muod77Cie6U3PALdJwPzmzpSTRw3qnlCvHYhxlVgdU8/y53wpMjBJ3khdLVnO0gVcYahAsqDKBLK+ujJUKfI3LCn4fEh5zRGk+9dUEriUZXNHOQFnRP7YgdrWE5mQta1cC85J48HrfseBxoEptpGV54roTgplVC7LkOnaa0Ng77QALjFDsL5aOvyQyREviutD71MH5VFAZsq0rT8zPXOKMmMfmhmsFV1OwbaQcqnC81C6KalMt/vA9xcBdaVa9d1TjyFWzJ8/07PefU2MFch/BzrzwO8zlSsadbAR8lyDe10MpJhk6rnQ91BsbP/d9bY2kJ+b7HG6l3oKv/vx3fwzX0fkoFr7ZhkI8NsBEqDDzsHjSu5icKDpdh2hSIehW/Dfyiu+EJtY4Xro1FV9ul9PK2ymlPJfMwM9+Ns6nSEgLciq5BUmHPa0xj7xd45xuUvfO8UP9Y2uKtr3sDdyEB7vlRdOdaq+NtWaZUxyWYcuWs4BJ60d7xhnNKlZTNfQ1n0oVtnC5oPgjbOc7+Pi0yY8kkKZ5oFCVJNBkXD1s2nUxiGsXTp2Kazx5JuD0usU8q1o3Qdjy4Ndknl3hn3TdktNC0DrfOND0u+KVSg5FzWahNrgHkqslwEw4ai+CzZHPGcUAbsJbLsG/ymRGh8j2w7JYoC53OT1bTrM+SkZoflPVIRtLw0ciIh2+3vNZw4HD0xbtkV3L9A1BLAwQUAAAICAAAWCHsHrQNaG0AAAB4AAAACQAkAG1ldGEuanNvbgoAIAAAAAAAAQAYAACAPtXesZ0BAIA+1d6xnQEAgD7V3rGdAatWKkstKs7Mz1OyUjDRM9IzNNdRUEovSizIKAaKGII4pZkpIHa0kkWKpbFlmmmigYGlpYGxUZpuUoq5sbFhooGhuWmaebKFiVIsUH1JZUGqX2JuKkRPQGJJRlpmXkpmXrqee1FmijvIaKXYWgBQSwECLQAUAAAICAAAWCHsdGesmV0CAAATBQAACwAkAAAAAAAAAAAAAAAAAAAAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQFQSwECLQAUAAAICAAAWCHsHrQNaG0AAAB4AAAACQAkAAAAAAAAAAAAAACqAgAAbWV0YS5qc29uCgAgAAAAAAABABgAAIA+1d6xnQEAgD7V3rGdAQCAPtXesZ0BUEsFBgAAAAACAAIAuAAAAGIDAAAAAA==
     upgradeData: 
     file_cachedStartup: {fileID: 0}
     data_cachedStartup: 
@@ -4651,7 +4652,8 @@ GameObject:
   - component: {fileID: 1986601363}
   - component: {fileID: 1986601367}
   - component: {fileID: 1986601368}
-  m_Layer: 0
+  - component: {fileID: 1986601369}
+  m_Layer: 2
   m_Name: Cat
   m_TagString: Cat
   m_Icon: {fileID: 0}
@@ -4775,7 +4777,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4e60a72e932a65459b0df44ad8a13ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 1
+  speed: 2
   patrollingPoints:
   - {fileID: 906778983}
   - {fileID: 1534442435}
@@ -4785,10 +4787,38 @@ MonoBehaviour:
   - {fileID: 98957729}
   - {fileID: 715704603}
   - {fileID: 138593115}
-  waitTime: 1
+  waitTime: 2
   directionBasedOnVelocity: 1
   rb: {fileID: 0}
   isPatrolling: 1
+--- !u!114 &1986601369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1986601360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 373b52eb9bf8c40f785bb6947a1aee66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 1
+  drawGizmos: 1
+  detailedGizmos: 0
+  startEndModifier:
+    addPoints: 0
+    exactStartPoint: 3
+    exactEndPoint: 3
+    useRaycasting: 0
+    mask:
+      serializedVersion: 2
+      m_Bits: 4294967295
+    useGraphRaycasting: 0
+  traversableTags: -1
+  tagPenalties: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  graphMask:
+    value: -1
 --- !u!1 &1989080279
 GameObject:
   m_ObjectHideFlags: 0
@@ -4799,7 +4829,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1989080280}
   - component: {fileID: 1989080281}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: LineOfSightCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4834,7 +4864,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotationDetectionSpeed: 50
-  rotationDetectionDistance: 0
+  rotationDetectionDistance: 3.64
 --- !u!1001 &2033872475
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4921,6 +4951,7 @@ GameObject:
   - component: {fileID: 2045235278}
   - component: {fileID: 2045235281}
   - component: {fileID: 2045235280}
+  - component: {fileID: 2045235282}
   m_Layer: 0
   m_Name: Walls
   m_TagString: Untagged
@@ -5887,10 +5918,58 @@ TilemapCollider2D:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_UsedByComposite: 1
   m_Offset: {x: 0, y: 0}
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0
+--- !u!66 &2045235282
+CompositeCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2045235276}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.1, y: -0.1}
+  m_GeometryType: 0
+  m_GenerationType: 0
+  m_EdgeRadius: 0
+  m_ColliderPaths:
+  - m_Collider: {fileID: 2045235281}
+    m_ColliderPaths:
+    - - X: 120000000
+        Y: 70000000
+      - X: -120000000
+        Y: 70000000
+      - X: -120000000
+        Y: -70000000
+      - X: 120000000
+        Y: -70000000
+    - - X: -110000000
+        Y: -60000000
+      - X: -110000000
+        Y: 60000000
+      - X: 110000000
+        Y: 60000000
+      - X: 110000000
+        Y: -60000000
+  m_CompositePaths:
+    m_Paths:
+    - - {x: 12.099971, y: -7.1}
+      - {x: 12.099971, y: 6.9}
+      - {x: -11.9, y: 6.8999705}
+      - {x: -11.89997, y: -7.1}
+    - - {x: 11.1, y: -6.0999703}
+      - {x: -10.9, y: -6.0999703}
+      - {x: -10.89997, y: 5.9}
+      - {x: 11.1, y: 5.8999705}
+  m_VertexDistance: 0.0005
+  m_OffsetDistance: 0.00005
 --- !u!1 &2104044593
 GameObject:
   m_ObjectHideFlags: 0

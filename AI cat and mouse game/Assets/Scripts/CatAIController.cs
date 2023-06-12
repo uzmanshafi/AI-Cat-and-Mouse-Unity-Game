@@ -8,8 +8,6 @@ public class CatAIController : MonoBehaviour
     public float speed = 2f;
     public Transform[] patrollingPoints;
     public float waitTime = 2f;
-    int currentPositionIndex;
-    public bool directionBasedOnVelocity = true;
     bool isWaiting;
     public Rigidbody2D rb;
     public bool isPatrolling = true;
@@ -18,19 +16,53 @@ public class CatAIController : MonoBehaviour
     int currentWaypoint = 0;
     Seeker seeker;
     Vector2 originalPosition;
+    List<Transform> unvisitedPoints;
 
     void Start()
     {
         seeker = GetComponent<Seeker>();
         rb = GetComponent<Rigidbody2D>();
         originalPosition = transform.position;
+        unvisitedPoints = new List<Transform>(patrollingPoints);  // Initialize list of unvisited points
         StartCoroutine(InitialWaitCoroutine());
     }
 
     IEnumerator InitialWaitCoroutine()
     {
         yield return new WaitForSeconds(4f);
-        seeker.StartPath(rb.position, patrollingPoints[currentPositionIndex].position, OnPathComplete);
+        StartPatrolToClosestPoint();
+    }
+
+    void StartPatrolToClosestPoint()
+    {
+        if (unvisitedPoints.Count == 0)
+        {
+            seeker.StartPath(rb.position, originalPosition, OnPathComplete);
+            return;
+        }
+        
+        Transform closestPoint = GetClosestPoint();
+        seeker.StartPath(rb.position, closestPoint.position, OnPathComplete);
+    }
+
+    // Returns the transform of the closest unvisited point and removes it from the list
+    Transform GetClosestPoint()
+    {
+        Transform closestPoint = unvisitedPoints[0];
+        float closestDistance = Vector2.Distance(rb.position, closestPoint.position);
+
+        foreach (Transform point in unvisitedPoints)
+        {
+            float distance = Vector2.Distance(rb.position, point.position);
+            if (distance < closestDistance)
+            {
+                closestPoint = point;
+                closestDistance = distance;
+            }
+        }
+
+        unvisitedPoints.Remove(closestPoint);
+        return closestPoint;
     }
 
     void FixedUpdate()
@@ -57,7 +89,6 @@ public class CatAIController : MonoBehaviour
 
             rb.MovePosition(newPosition);
 
-            // Check if the cat has reached its destination
             if (newPosition == targetPosition)
             {
                 currentWaypoint++;
@@ -69,13 +100,13 @@ public class CatAIController : MonoBehaviour
 
     void Flip()
     {
-        if (directionBasedOnVelocity)
+        if (path != null && currentWaypoint < path.vectorPath.Count)
         {
-            if (rb.velocity.x > 0.1f)
+            if (rb.position.x < path.vectorPath[currentWaypoint].x)
             {
-                transform.localScale = new Vector3(.8f, .8f, .8f);
+                transform.localScale = new Vector3(-.8f, .8f, .8f);
             }
-            else if (rb.velocity.x < -0.1f)
+            else if (rb.position.x > path.vectorPath[currentWaypoint].x)
             {
                 transform.localScale = new Vector3(.8f, .8f, .8f);
             }
@@ -86,23 +117,11 @@ public class CatAIController : MonoBehaviour
     {
         isWaiting = true;
         yield return new WaitForSeconds(waitTime);
-
-        if (currentPositionIndex + 1 < patrollingPoints.Length)
-        {
-            currentPositionIndex++;
-        }
-        else
-        {
-            currentPositionIndex = 0;
-            seeker.StartPath(rb.position, originalPosition, OnPathComplete);
-            yield break;
-        }
-
         currentWaypoint = 0;
         path = null;
         if (seeker.IsDone())
         {
-            seeker.StartPath(rb.position, patrollingPoints[currentPositionIndex].position, OnPathComplete);
+            StartPatrolToClosestPoint();
         }
         isWaiting = false;
     }
