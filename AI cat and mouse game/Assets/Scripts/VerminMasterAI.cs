@@ -11,7 +11,8 @@ public class VerminMasterAI : MonoBehaviour
     public float pathUpdateSeconds = 0.5f;
 
     [Header("Physics")]
-    public float speed = 4f;
+    public float speed = 6f;
+    public float maxSpeed = 8f;  // maximum speed
     public float nextWaypointDistance = 3f;
 
     [Header("Custom Behavior")]
@@ -39,20 +40,20 @@ public class VerminMasterAI : MonoBehaviour
 
     void UpdatePath()
     {
-        if (findClosestCheese && seeker.IsDone())
+        if (seeker.IsDone())
         {
-            if (CheeseTargets.Count == 0)
-            {
-                // if all cheese has been eaten, set target back to original position
-                seeker.StartPath(rb.position, originalPosition, OnPathComplete);
-            }
-            else
+            if (findClosestCheese && CheeseTargets.Count > 0)
             {
                 targetCheese = FindClosestCheese();
                 if (targetCheese != null)
                 {
                     seeker.StartPath(rb.position, targetCheese.position, OnPathComplete);
                 }
+            }
+            else
+            {
+                // if all cheese has been eaten, set target back to original position
+                seeker.StartPath(rb.position, originalPosition, OnPathComplete);
             }
         }
     }
@@ -63,6 +64,9 @@ public class VerminMasterAI : MonoBehaviour
         {
             PathFollow();
         }
+
+        // Ensure speed does not exceed maxSpeed
+        rb.velocity = Vector2.ClampMagnitude(rb.velocity, maxSpeed);
     }
 
     void PathFollow()
@@ -84,10 +88,9 @@ public class VerminMasterAI : MonoBehaviour
 
         Vector2 direction = ((Vector2)path.vectorPath[currentWaypoint] - rb.position).normalized;
 
-        rb.velocity = direction * speed;
+        rb.velocity = direction * speed;  // directly set velocity
 
-        float distance = Vector2.Distance(rb.position, path.vectorPath[currentWaypoint]);
-        if (distance < nextWaypointDistance)
+        if (Vector2.Distance(rb.position, path.vectorPath[currentWaypoint]) <= nextWaypointDistance)
         {
             currentWaypoint++;
         }
@@ -161,11 +164,6 @@ public class VerminMasterAI : MonoBehaviour
             if (targetCheese != null)
             {
                 seeker.StartPath(rb.position, targetCheese.position, OnPathComplete);
-            }
-            else if (CheeseTargets.Count == 0)
-            {
-                // if all cheese has been eaten, set target back to original position
-                seeker.StartPath(rb.position, originalPosition, OnPathComplete);
             }
         }
     }

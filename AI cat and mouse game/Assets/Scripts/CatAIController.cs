@@ -5,10 +5,9 @@ using Pathfinding;
 
 public class CatAIController : MonoBehaviour
 {
-    public float speed = 200f;
-    public float nextWaypointDistance = 3f;
+    public float speed = 2f;
     public Transform[] patrollingPoints;
-    public float waitTime;
+    public float waitTime = 2f;
     int currentPositionIndex;
     public bool directionBasedOnVelocity = true;
     bool isWaiting;
@@ -18,15 +17,23 @@ public class CatAIController : MonoBehaviour
     Path path;
     int currentWaypoint = 0;
     Seeker seeker;
+    Vector2 originalPosition;
 
     void Start()
     {
         seeker = GetComponent<Seeker>();
         rb = GetComponent<Rigidbody2D>();
+        originalPosition = transform.position;
+        StartCoroutine(InitialWaitCoroutine());
+    }
+
+    IEnumerator InitialWaitCoroutine()
+    {
+        yield return new WaitForSeconds(4f);
         seeker.StartPath(rb.position, patrollingPoints[currentPositionIndex].position, OnPathComplete);
     }
 
-    void Update()
+    void FixedUpdate()
     {
         if (isPatrolling)
         {
@@ -44,13 +51,14 @@ public class CatAIController : MonoBehaviour
                 return;
             }
 
-            Vector2 direction = ((Vector2)path.vectorPath[currentWaypoint] - rb.position).normalized;
-            Vector2 force = direction * speed * Time.deltaTime;
+            Vector2 currentPosition = rb.position;
+            Vector2 targetPosition = path.vectorPath[currentWaypoint];
+            Vector2 newPosition = Vector2.MoveTowards(currentPosition, targetPosition, speed * Time.fixedDeltaTime);
 
-            rb.AddForce(force);
+            rb.MovePosition(newPosition);
 
-            float distance = Vector2.Distance(rb.position, path.vectorPath[currentWaypoint]);
-            if (distance < nextWaypointDistance)
+            // Check if the cat has reached its destination
+            if (newPosition == targetPosition)
             {
                 currentWaypoint++;
             }
@@ -76,7 +84,9 @@ public class CatAIController : MonoBehaviour
 
     IEnumerator WaitForNextPosition()
     {
+        isWaiting = true;
         yield return new WaitForSeconds(waitTime);
+
         if (currentPositionIndex + 1 < patrollingPoints.Length)
         {
             currentPositionIndex++;
@@ -84,11 +94,12 @@ public class CatAIController : MonoBehaviour
         else
         {
             currentPositionIndex = 0;
+            seeker.StartPath(rb.position, originalPosition, OnPathComplete);
+            yield break;
         }
 
         currentWaypoint = 0;
         path = null;
-        // Check if seeker is done with the last path before starting a new one
         if (seeker.IsDone())
         {
             seeker.StartPath(rb.position, patrollingPoints[currentPositionIndex].position, OnPathComplete);
