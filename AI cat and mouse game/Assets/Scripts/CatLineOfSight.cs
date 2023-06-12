@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class CatLineOfSight : MonoBehaviour
 {
-    public float rotationDetectionSpeed = 50; // Adjust this value
-    public float rotationDetectionDistance;
+    public float rotationDetectionSpeed = 50;
+    public float rotationDetectionDistance = 4;
 
     private LineRenderer lineRenderer;
 

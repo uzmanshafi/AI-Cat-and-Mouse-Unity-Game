@@ -25,11 +25,14 @@ public class VerminMasterAI : MonoBehaviour
     private Rigidbody2D rb;
     private Transform targetCheese;
 
+    private Vector2 originalPosition;
+
     void Start()
     {
         seeker = GetComponent<Seeker>();
         rb = GetComponent<Rigidbody2D>();
         targetCheese = FindClosestCheese();
+        originalPosition = transform.position;
 
         InvokeRepeating("UpdatePath", 0f, pathUpdateSeconds);
     }
@@ -38,10 +41,18 @@ public class VerminMasterAI : MonoBehaviour
     {
         if (findClosestCheese && seeker.IsDone())
         {
-            targetCheese = FindClosestCheese();
-            if (targetCheese != null)
+            if (CheeseTargets.Count == 0)
             {
-                seeker.StartPath(rb.position, targetCheese.position, OnPathComplete);
+                // if all cheese has been eaten, set target back to original position
+                seeker.StartPath(rb.position, originalPosition, OnPathComplete);
+            }
+            else
+            {
+                targetCheese = FindClosestCheese();
+                if (targetCheese != null)
+                {
+                    seeker.StartPath(rb.position, targetCheese.position, OnPathComplete);
+                }
             }
         }
     }
@@ -150,6 +161,11 @@ public class VerminMasterAI : MonoBehaviour
             if (targetCheese != null)
             {
                 seeker.StartPath(rb.position, targetCheese.position, OnPathComplete);
+            }
+            else if (CheeseTargets.Count == 0)
+            {
+                // if all cheese has been eaten, set target back to original position
+                seeker.StartPath(rb.position, originalPosition, OnPathComplete);
             }
         }
     }
