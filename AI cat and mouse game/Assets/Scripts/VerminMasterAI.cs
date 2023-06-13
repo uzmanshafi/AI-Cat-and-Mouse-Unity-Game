@@ -11,8 +11,8 @@ public class VerminMasterAI : MonoBehaviour
     public float pathUpdateSeconds = 0.5f;
 
     [Header("Physics")]
-    public float speed = 6f;
-    public float maxSpeed = 8f;  // maximum speed
+    public float speed = 2f;
+    public float maxSpeed = 8f;
     public float nextWaypointDistance = 3f;
 
     [Header("Custom Behavior")]
@@ -25,7 +25,6 @@ public class VerminMasterAI : MonoBehaviour
     private Seeker seeker;
     private Rigidbody2D rb;
     private Transform targetCheese;
-
     private Vector2 originalPosition;
 
     void Start()
@@ -92,17 +91,13 @@ public class VerminMasterAI : MonoBehaviour
 
         rb.MovePosition(newPosition);
 
-        if (Vector2.Distance(rb.position, path.vectorPath[currentWaypoint]) <= nextWaypointDistance)
+        // Check if the mouse has reached its destination
+        if (newPosition == targetPosition)
         {
             currentWaypoint++;
         }
 
-        Flip();
-    }
-
-    void Flip()
-    {
-        if (path != null && currentWaypoint < path.vectorPath.Count)
+        if (directionBasedOnVelocity && currentWaypoint < path.vectorPath.Count)
         {
             if (rb.position.x < path.vectorPath[currentWaypoint].x)
             {
@@ -110,11 +105,10 @@ public class VerminMasterAI : MonoBehaviour
             }
             else if (rb.position.x > path.vectorPath[currentWaypoint].x)
             {
-                transform.localScale = new Vector3(-0.5f, 0.5f, 0.5f);
+                transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
             }
         }
     }
-
 
     private bool TargetInDistance()
     {
@@ -153,8 +147,19 @@ public class VerminMasterAI : MonoBehaviour
                 closestCheese = cheeseTransform;
             }
         }
+        currentWaypoint = 0;  // Reset currentWaypoint whenever a new cheese target is set
 
         return closestCheese;
+    }
+
+    public int GetCheeseCount()
+    {
+        return CheeseTargets.Count;
+    }
+
+    public bool HasMouseEatenALLCheese()
+    {
+        return CheeseTargets.Count == 0;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

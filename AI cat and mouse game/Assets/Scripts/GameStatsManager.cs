@@ -2,18 +2,33 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class GameStatsManager : MonoBehaviour
 {
-    [Header("Game Stats")]
+    [SerializeField] private TextMeshProUGUI cheeseText;
+    [SerializeField] private TextMeshProUGUI catSeesMouseText;
+    [SerializeField] private TextMeshProUGUI mouseWonText;
 
-    [SerializeField] private Text CurrentExistingCheese;
+    [SerializeField] private VerminMasterAI MouseCheese;
+    [SerializeField] private CatLineOfSight CatLineOfSight;
 
-    [SerializeField] private Text isCaught;
+    private int cheeseCount;
+    private bool doesCatSeeMouse;
+    private bool hasMouseWon;
 
-    [SerializeField] private Text isEscaped;
+    void Update()
+    {
+        
+        cheeseCount = MouseCheese.GetCheeseCount();
+        doesCatSeeMouse = CatLineOfSight.IsCatLookingAtMouse();
+        hasMouseWon = MouseCheese.HasMouseEatenALLCheese();
 
-    [SerializeField] private Text isEaten;
+        // Update the text values
+        cheeseText.text = $"No. of Cheese -> {cheeseCount}";
+        catSeesMouseText.text = $"Does Cat See Mouse?: {doesCatSeeMouse}";
+        mouseWonText.text = $"Has The Mouse Won?: {hasMouseWon}";
+    }
 
 
 

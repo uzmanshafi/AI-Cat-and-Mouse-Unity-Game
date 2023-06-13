@@ -9,6 +9,8 @@ public class CatLineOfSight : MonoBehaviour
 
     private LineRenderer lineRenderer;
 
+    private bool isCatLookingAtMouse = false;
+
     void Start()
     {
         lineRenderer = this.gameObject.AddComponent<LineRenderer>();
@@ -19,31 +21,44 @@ public class CatLineOfSight : MonoBehaviour
     }
 
     void Update()
-{
-    lineRenderer.SetPosition(0, transform.position);
-
-    // Rotate around the Z-axis
-    transform.Rotate(0, 0, rotationDetectionSpeed * Time.deltaTime);
-
-    RaycastHit2D hitInfo = Physics2D.Raycast(transform.position, transform.up, rotationDetectionDistance);
-    if (hitInfo.collider != null)
     {
-        Debug.Log("Raycast hit: " + hitInfo.collider.name);
-        Debug.DrawLine(transform.position, hitInfo.point, Color.red);
-        lineRenderer.SetPosition(1, hitInfo.point);
-        lineRenderer.startColor = Color.red;
-        lineRenderer.endColor = Color.red;
-    } 
-    else
-    {
-        Debug.DrawLine(transform.position, transform.position + transform.up * rotationDetectionDistance, Color.green);
-        lineRenderer.SetPosition(1, transform.position + transform.up * rotationDetectionDistance);
-        lineRenderer.startColor = Color.green;
-        lineRenderer.endColor = Color.green;
+        lineRenderer.SetPosition(0, transform.position);
+
+        // Rotate around the Z-axis
+        transform.Rotate(0, 0, rotationDetectionSpeed * Time.deltaTime);
+
+        RaycastHit2D hitInfo = Physics2D.Raycast(transform.position, transform.up, rotationDetectionDistance);
+        if (hitInfo.collider != null)
+        {
+            Debug.Log("Raycast hit: " + hitInfo.collider.name);
+            Debug.DrawLine(transform.position, hitInfo.point, Color.red);
+            lineRenderer.SetPosition(1, hitInfo.point);
+            lineRenderer.startColor = Color.red;
+            lineRenderer.endColor = Color.red;
+
+            if (hitInfo.collider.CompareTag("Mouse"))
+            {
+                isCatLookingAtMouse = true;
+            }
+            else
+            {
+                isCatLookingAtMouse = false;
+            }
+        }
+        else
+        {
+            Debug.DrawLine(transform.position, transform.position + transform.up * rotationDetectionDistance, Color.green);
+            lineRenderer.SetPosition(1, transform.position + transform.up * rotationDetectionDistance);
+            lineRenderer.startColor = Color.green;
+            lineRenderer.endColor = Color.green;
+            isCatLookingAtMouse = false;
+        }
     }
-}
 
-
+    public bool IsCatLookingAtMouse()
+    {
+        return isCatLookingAtMouse;
+    }
 
     void CheckLineRenderer()
     {
