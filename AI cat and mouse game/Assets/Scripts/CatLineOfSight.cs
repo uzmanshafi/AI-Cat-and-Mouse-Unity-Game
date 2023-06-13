@@ -24,8 +24,11 @@ public class CatLineOfSight : MonoBehaviour
     {
         lineRenderer.SetPosition(0, transform.position);
 
-        // Rotate around the Z-axis
-        transform.Rotate(0, 0, rotationDetectionSpeed * Time.deltaTime);
+        // Only rotate around the Z-axis when the cat is not looking at the mouse
+        if (!isCatLookingAtMouse)
+        {
+            transform.Rotate(0, 0, rotationDetectionSpeed * Time.deltaTime);
+        }
 
         RaycastHit2D hitInfo = Physics2D.Raycast(transform.position, transform.up, rotationDetectionDistance);
         if (hitInfo.collider != null)
@@ -53,8 +56,10 @@ public class CatLineOfSight : MonoBehaviour
             lineRenderer.startColor = Color.green;
             lineRenderer.endColor = Color.green;
             isCatLookingAtMouse = false;
+            mouse = null;  // reset the mouse transform if it leaves line of sight
         }
     }
+
 
     public bool IsCatLookingAtMouse()
     {
