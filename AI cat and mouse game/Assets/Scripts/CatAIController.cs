@@ -8,23 +8,27 @@ public class CatAIController : MonoBehaviour
     public float speed = 2f;
     public Transform[] patrollingPoints;
     public float waitTime = 2f;
-    bool isWaiting;
     public Rigidbody2D rb;
     public bool isPatrolling = true;
+    public CatLineOfSight lineOfSight;
 
     Path path;
     int currentWaypoint = 0;
     Seeker seeker;
     Vector2 originalPosition;
     List<Transform> unvisitedPoints;
+    bool isCalculatingPath = false;
+
+    bool waiting = false;
 
     void Start()
     {
         seeker = GetComponent<Seeker>();
         rb = GetComponent<Rigidbody2D>();
         originalPosition = transform.position;
-        unvisitedPoints = new List<Transform>(patrollingPoints);  // Initialize list of unvisited points
+        unvisitedPoints = new List<Transform>(patrollingPoints);
         StartCoroutine(InitialWaitCoroutine());
+        lineOfSight = GetComponent<CatLineOfSight>();
     }
 
     IEnumerator InitialWaitCoroutine()
@@ -35,17 +39,23 @@ public class CatAIController : MonoBehaviour
 
     void StartPatrolToClosestPoint()
     {
+        // This ensures that there is always a destination point
         if (unvisitedPoints.Count == 0)
         {
-            seeker.StartPath(rb.position, originalPosition, OnPathComplete);
-            return;
+            unvisitedPoints = new List<Transform>(patrollingPoints);
         }
-        
+
         Transform closestPoint = GetClosestPoint();
+        isCalculatingPath = true;
+
+        // Clear the path here before calculating a new one
+        path = null;
+        currentWaypoint = 0;
+
         seeker.StartPath(rb.position, closestPoint.position, OnPathComplete);
     }
 
-    // Returns the transform of the closest unvisited point and removes it from the list
+
     Transform GetClosestPoint()
     {
         Transform closestPoint = unvisitedPoints[0];
@@ -66,36 +76,86 @@ public class CatAIController : MonoBehaviour
     }
 
     void FixedUpdate()
+{
+    Debug.Log("path: " + path);
+    Debug.Log("rb: " + rb);
+
+    if (isPatrolling)
     {
-        if (isPatrolling)
+        if (path == null)
         {
-            if (path == null)
+            // If we're not already calculating a path, then wait for next position
+            if (!isCalculatingPath && !waiting)
             {
-                return;
+                StartCoroutine(WaitForNextPosition());
             }
+            return;
+        }
 
-            if (currentWaypoint >= path.vectorPath.Count)
+        if (currentWaypoint >= path.vectorPath.Count)
+        {
+            // If the current waypoint is at the end of the path, start the coroutine to calculate a new path
+            if (!isCalculatingPath && !waiting)
             {
-                if (!isWaiting)
-                {
-                    StartCoroutine(WaitForNextPosition());
-                }
-                return;
+                StartCoroutine(WaitForNextPosition());
             }
+            return;
+        }
 
-            Vector2 currentPosition = rb.position;
-            Vector2 targetPosition = path.vectorPath[currentWaypoint];
-            Vector2 newPosition = Vector2.MoveTowards(currentPosition, targetPosition, speed * Time.fixedDeltaTime);
+        Vector2 currentPosition = rb.position;
+        Vector2 targetPosition = path.vectorPath[currentWaypoint];
+        Vector2 newPosition = Vector2.MoveTowards(currentPosition, targetPosition, speed * Time.fixedDeltaTime);
 
-            rb.MovePosition(newPosition);
+        rb.MovePosition(newPosition);
 
-            if (newPosition == targetPosition)
-            {
-                currentWaypoint++;
-            }
+        // Calculate distance after moving
+        float distanceAfterMoving = Vector2.Distance(newPosition, targetPosition);
 
+        // Flip only if moved a little towards the new waypoint
+        if (Vector2.Distance(currentPosition, targetPosition) - distanceAfterMoving > 0.01f)
+        {
             Flip();
         }
+
+        if (distanceAfterMoving < 0.1f)
+        {
+            currentWaypoint++;
+        }
+    }
+}
+
+
+
+
+    void MoveAlongPath()
+    {
+        if (path == null)
+        {
+            return;
+        }
+
+        if (currentWaypoint >= path.vectorPath.Count)
+        {
+            if (!isCalculatingPath)
+            {
+                StartCoroutine(WaitForNextPosition());
+            }
+            return;
+        }
+
+        Vector2 currentPosition = rb.position;
+        Vector2 targetPosition = path.vectorPath[currentWaypoint];
+        Vector2 newPosition = Vector2.MoveTowards(currentPosition, targetPosition, speed * Time.fixedDeltaTime);
+
+        rb.MovePosition(newPosition);
+
+        if (Vector2.Distance(newPosition, targetPosition) < 0.1f)
+        {
+            currentWaypoint++;
+        }
+
+
+        Flip();
     }
 
     void Flip()
@@ -115,23 +175,26 @@ public class CatAIController : MonoBehaviour
 
     IEnumerator WaitForNextPosition()
     {
-        isWaiting = true;
-        yield return new WaitForSeconds(waitTime);
-        currentWaypoint = 0;
-        path = null;
-        if (seeker.IsDone())
+        if (!waiting)
         {
-            StartPatrolToClosestPoint();
+            waiting = true;
+            yield return new WaitForSeconds(waitTime);
+            if (!isCalculatingPath)
+            {
+                StartPatrolToClosestPoint();
+            }
+            waiting = false;
         }
-        isWaiting = false;
     }
 
     void OnPathComplete(Path p)
+{
+    if (!p.error)
     {
-        if (!p.error)
-        {
-            path = p;
-            currentWaypoint = 0;
-        }
+        path = p;
+        currentWaypoint = 0;
     }
+    isCalculatingPath = false;
+}
+
 }

@@ -8,8 +8,8 @@ public class CatLineOfSight : MonoBehaviour
     public float rotationDetectionDistance = 4;
 
     private LineRenderer lineRenderer;
-
     private bool isCatLookingAtMouse = false;
+    private Transform mouse = null;
 
     void Start()
     {
@@ -39,6 +39,7 @@ public class CatLineOfSight : MonoBehaviour
             if (hitInfo.collider.CompareTag("Mouse"))
             {
                 isCatLookingAtMouse = true;
+                mouse = hitInfo.transform;
             }
             else
             {
@@ -58,6 +59,11 @@ public class CatLineOfSight : MonoBehaviour
     public bool IsCatLookingAtMouse()
     {
         return isCatLookingAtMouse;
+    }
+
+    public Transform GetMouseTransform()
+    {
+        return mouse;
     }
 
     void CheckLineRenderer()
