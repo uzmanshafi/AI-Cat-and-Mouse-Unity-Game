@@ -264,10 +264,12 @@ MonoBehaviour:
   activateDistance: 20
   pathUpdateSeconds: 0.5
   speed: 2
-  maxSpeed: 4
+  maxSpeed: 3
   nextWaypointDistance: 3
   findClosestCheese: 1
   directionBasedOnVelocity: 1
+  isBeingChased: 0
+  catTransform: {fileID: 0}
 --- !u!114 &92374088
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5813,7 +5815,7 @@ CapsuleCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: -0.027847812, y: -0.037467107}
@@ -5831,7 +5833,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4e60a72e932a65459b0df44ad8a13ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 3
+  speed: 5
   patrollingPoints:
   - {fileID: 906778983}
   - {fileID: 1534442435}

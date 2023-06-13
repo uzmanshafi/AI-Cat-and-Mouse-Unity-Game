@@ -11,6 +11,7 @@ public class CatLineOfSight : MonoBehaviour
     private bool isCatLookingAtMouse = false;
     private Transform mouse = null;
 
+
     void Start()
     {
         lineRenderer = this.gameObject.AddComponent<LineRenderer>();
@@ -43,10 +44,18 @@ public class CatLineOfSight : MonoBehaviour
             {
                 isCatLookingAtMouse = true;
                 mouse = hitInfo.transform;
+                // notify the mouse when it's spotted
+                mouse.GetComponent<VerminMasterAI>().OnCatSighting();
             }
             else
             {
                 isCatLookingAtMouse = false;
+                if (mouse != null)
+                {
+                    // notify the mouse when it's lost
+                    mouse.GetComponent<VerminMasterAI>().OnCatLost();
+                    mouse = null;
+                }
             }
         }
         else
@@ -55,9 +64,17 @@ public class CatLineOfSight : MonoBehaviour
             lineRenderer.SetPosition(1, transform.position + transform.up * rotationDetectionDistance);
             lineRenderer.startColor = Color.green;
             lineRenderer.endColor = Color.green;
+
+            if (isCatLookingAtMouse && mouse != null)
+            {
+                // notify the mouse when it's lost
+                mouse.GetComponent<VerminMasterAI>().OnCatLost();
+            }
+
             isCatLookingAtMouse = false;
-            mouse = null;  // reset the mouse transform if it leaves line of sight
+            mouse = null;
         }
+
     }
 
 

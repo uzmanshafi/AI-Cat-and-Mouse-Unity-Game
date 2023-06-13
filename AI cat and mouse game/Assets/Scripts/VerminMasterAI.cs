@@ -27,12 +27,18 @@ public class VerminMasterAI : MonoBehaviour
     private Transform targetCheese;
     private Vector2 originalPosition;
 
+    public bool isBeingChased = false;
+    public Transform catTransform;
+
+    private Vector2 escapeDirection;
+
     void Start()
     {
         seeker = GetComponent<Seeker>();
         rb = GetComponent<Rigidbody2D>();
         targetCheese = FindClosestCheese();
         originalPosition = transform.position;
+        catTransform = GameObject.FindGameObjectWithTag("Cat").transform;
 
         InvokeRepeating("UpdatePath", 0f, pathUpdateSeconds);
     }
@@ -41,18 +47,28 @@ public class VerminMasterAI : MonoBehaviour
     {
         if (seeker.IsDone())
         {
-            if (findClosestCheese && CheeseTargets.Count > 0)
+            if (isBeingChased)
             {
-                targetCheese = FindClosestCheese();
-                if (targetCheese != null)
-                {
-                    seeker.StartPath(rb.position, targetCheese.position, OnPathComplete);
-                }
+                // Update the escape direction
+                escapeDirection = (transform.position - catTransform.position).normalized;
+                // Move in the opposite direction of the cat
+                seeker.StartPath(rb.position, rb.position + escapeDirection * activateDistance, OnPathComplete);
             }
             else
             {
-                // if all cheese has been eaten, set target back to original position
-                seeker.StartPath(rb.position, originalPosition, OnPathComplete);
+                if (findClosestCheese && CheeseTargets.Count > 0)
+                {
+                    targetCheese = FindClosestCheese();
+                    if (targetCheese != null)
+                    {
+                        seeker.StartPath(rb.position, targetCheese.position, OnPathComplete);
+                    }
+                }
+                else
+                {
+                    // if all cheese has been eaten, set target back to original position
+                    seeker.StartPath(rb.position, originalPosition, OnPathComplete);
+                }
             }
         }
     }
@@ -162,11 +178,26 @@ public class VerminMasterAI : MonoBehaviour
         return CheeseTargets.Count == 0;
     }
 
+    public void OnCatSighting()
+    {
+        isBeingChased = true;
+    }
+
+    public void OnCatLost()
+    {
+        isBeingChased = false;
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         Debug.Log("Triggered with " + collision.gameObject.name);
 
-        if (collision.gameObject.CompareTag("Cheese"))
+        if (collision.gameObject.CompareTag("Cat"))
+        {
+            // Cat has caught the mouse
+            Destroy(gameObject);
+        }
+        else if(collision.gameObject.CompareTag("Cheese"))
         {
             CheeseTargets.Remove(collision.transform);
             Destroy(collision.gameObject);
