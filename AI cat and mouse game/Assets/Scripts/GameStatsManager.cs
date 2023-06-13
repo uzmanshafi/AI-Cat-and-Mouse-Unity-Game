@@ -14,6 +14,9 @@ public class GameStatsManager : MonoBehaviour
     [SerializeField] private VerminMasterAI MouseCheese;
     [SerializeField] private CatLineOfSight CatLineOfSight;
 
+    [Header("Game Screen Panels")]
+
+    [SerializeField] private GameObject GameStartPanel;
     [SerializeField] private GameObject GameOverPanel;
 
     private int cheeseCount;
@@ -37,6 +40,11 @@ public class GameStatsManager : MonoBehaviour
         cheeseText.text = $"No. of Cheese -> {cheeseCount}";
         catSeesMouseText.text = $"Does Cat See Mouse?: {doesCatSeeMouse}";
         mouseWonText.text = $"Has The Mouse Won?: {hasMouseWon}";
+    }
+
+    public void StartGame()
+    {
+        GameStartPanel.SetActive(false);
     }
 
     public void RestartGame()

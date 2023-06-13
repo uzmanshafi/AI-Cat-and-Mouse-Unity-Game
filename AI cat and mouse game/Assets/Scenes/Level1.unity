@@ -3300,6 +3300,7 @@ MonoBehaviour:
   mouseWonText: {fileID: 564558244}
   MouseCheese: {fileID: 92374087}
   CatLineOfSight: {fileID: 1989080281}
+  GameStartPanel: {fileID: 0}
   GameOverPanel: {fileID: 675572903}
 --- !u!4 &386996542
 Transform:
