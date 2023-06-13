@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameStatsManager : MonoBehaviour
 {
@@ -13,12 +14,20 @@ public class GameStatsManager : MonoBehaviour
     [SerializeField] private VerminMasterAI MouseCheese;
     [SerializeField] private CatLineOfSight CatLineOfSight;
 
+    [SerializeField] private GameObject GameOverPanel;
+
     private int cheeseCount;
     private bool doesCatSeeMouse;
     private bool hasMouseWon;
 
     void Update()
     {
+
+        if (hasMouseWon)
+        {
+            GameOverPanel.SetActive(true);
+            
+        }
         
         cheeseCount = MouseCheese.GetCheeseCount();
         doesCatSeeMouse = CatLineOfSight.IsCatLookingAtMouse();
@@ -28,6 +37,11 @@ public class GameStatsManager : MonoBehaviour
         cheeseText.text = $"No. of Cheese -> {cheeseCount}";
         catSeesMouseText.text = $"Does Cat See Mouse?: {doesCatSeeMouse}";
         mouseWonText.text = $"Has The Mouse Won?: {hasMouseWon}";
+    }
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
 
