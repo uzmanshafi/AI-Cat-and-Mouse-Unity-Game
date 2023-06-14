@@ -28,6 +28,8 @@ public class GameStatsManager : MonoBehaviour
     private bool doesCatSeeMouse;
     private bool hasMouseWon;
 
+    private bool hasMouseDied;
+
     void Update()
     {
         if (hasMouseWon)
@@ -38,6 +40,12 @@ public class GameStatsManager : MonoBehaviour
         cheeseCount = MouseCheese.GetCheeseCount();
         doesCatSeeMouse = CatLineOfSight.IsCatLookingAtMouse();
         hasMouseWon = MouseCheese.HasMouseEatenALLCheese();
+        hasMouseDied = MouseCheese.IsMouseAlive();
+
+        if (!hasMouseDied)
+        {
+            GameOverPanel.SetActive(true);
+        }
 
         // Update the text values
         cheeseText.text = $"No. of Cheese -> {cheeseCount}";

@@ -6,6 +6,7 @@ using Pathfinding;
 public class CatAIController : MonoBehaviour
 {
     public float speed = 2f;
+    private float baseSpeed;
     public Transform[] patrollingPoints;
     public float waitTime = 2f;
     public Rigidbody2D rb;
@@ -32,6 +33,7 @@ public class CatAIController : MonoBehaviour
 
     void Start()
     {
+        baseSpeed = speed;
         seeker = GetComponent<Seeker>();
         rb = GetComponent<Rigidbody2D>();
         originalPosition = transform.position;
@@ -84,6 +86,7 @@ public class CatAIController : MonoBehaviour
                 {
                     ChaseMouse();
                     CurrentCatState = CatState.ChasingMouse;
+                    speed = baseSpeed + 1;  // Increase speed when chasing mouse
                 }
             }
             else if (!lineOfSight.IsCatLookingAtMouse() && mouse != null)
@@ -93,6 +96,7 @@ public class CatAIController : MonoBehaviour
                 {
                     StartPatrolToClosestPoint();
                     CurrentCatState = CatState.Patrolling;
+                    speed = baseSpeed;  // Revert back to base speed when not chasing mouse
                 }
             }
         }

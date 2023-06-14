@@ -32,6 +32,10 @@ public class VerminMasterAI : MonoBehaviour
 
     private Vector2 escapeDirection;
 
+    private float baseSpeed;
+
+    bool isMouseAlive = true;
+
     void Start()
     {
         seeker = GetComponent<Seeker>();
@@ -39,6 +43,7 @@ public class VerminMasterAI : MonoBehaviour
         targetCheese = FindClosestCheese();
         originalPosition = transform.position;
         catTransform = GameObject.FindGameObjectWithTag("Cat").transform;
+        baseSpeed = speed;
 
         InvokeRepeating("UpdatePath", 0f, pathUpdateSeconds);
     }
@@ -49,6 +54,8 @@ public class VerminMasterAI : MonoBehaviour
         {
             if (isBeingChased)
             {
+                speed = baseSpeed + 1;  // Increases speed when being chased
+
                 // Update the escape direction
                 escapeDirection = (transform.position - catTransform.position).normalized;
                 // Move in the opposite direction of the cat
@@ -56,6 +63,9 @@ public class VerminMasterAI : MonoBehaviour
             }
             else
             {
+                speed = baseSpeed;  // Revert back to base speed when not being chased
+
+                // Find new cheese target only when not being chased
                 if (findClosestCheese && CheeseTargets.Count > 0)
                 {
                     targetCheese = FindClosestCheese();
@@ -80,7 +90,7 @@ public class VerminMasterAI : MonoBehaviour
             PathFollow();
         }
 
-        // Ensure speed does not exceed maxSpeed
+        // Ensures speed does not exceed maxSpeed
         rb.velocity = Vector2.ClampMagnitude(rb.velocity, maxSpeed);
     }
 
@@ -107,7 +117,7 @@ public class VerminMasterAI : MonoBehaviour
 
         rb.MovePosition(newPosition);
 
-        // Check if the mouse has reached its destination
+        // Checks if the mouse has reached its destination
         if (newPosition == targetPosition)
         {
             currentWaypoint++;
@@ -163,7 +173,7 @@ public class VerminMasterAI : MonoBehaviour
                 closestCheese = cheeseTransform;
             }
         }
-        currentWaypoint = 0;  // Reset currentWaypoint whenever a new cheese target is set
+        currentWaypoint = 0;  // Resets currentWaypoint whenever a new cheese target is set
 
         return closestCheese;
     }
@@ -188,6 +198,13 @@ public class VerminMasterAI : MonoBehaviour
         isBeingChased = false;
     }
 
+    public bool IsMouseAlive()
+    {
+        return isMouseAlive;
+    }
+
+
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         Debug.Log("Triggered with " + collision.gameObject.name);
@@ -196,15 +213,16 @@ public class VerminMasterAI : MonoBehaviour
         {
             // Cat has caught the mouse
             Destroy(gameObject);
+            isMouseAlive = false;
         }
         else if(collision.gameObject.CompareTag("Cheese"))
         {
             CheeseTargets.Remove(collision.transform);
             Destroy(collision.gameObject);
 
-            // Find next closest cheese
+            // Finds next closest cheese
             targetCheese = FindClosestCheese();
-            // If there is a new target, start path
+            // If there is a new target, starts path
             if (targetCheese != null)
             {
                 seeker.StartPath(rb.position, targetCheese.position, OnPathComplete);
