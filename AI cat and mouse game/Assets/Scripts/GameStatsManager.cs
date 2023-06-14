@@ -7,6 +7,9 @@ using UnityEngine.SceneManagement;
 
 public class GameStatsManager : MonoBehaviour
 {
+    [Header("Game Stats")]
+    [SerializeField] private CatAIController catAIController;
+    [SerializeField] private TextMeshProUGUI catStateText;
     [SerializeField] private TextMeshProUGUI cheeseText;
     [SerializeField] private TextMeshProUGUI catSeesMouseText;
     [SerializeField] private TextMeshProUGUI mouseWonText;
@@ -19,19 +22,19 @@ public class GameStatsManager : MonoBehaviour
     [SerializeField] private GameObject GameStartPanel;
     [SerializeField] private GameObject GameOverPanel;
 
+
+
     private int cheeseCount;
     private bool doesCatSeeMouse;
     private bool hasMouseWon;
 
     void Update()
     {
-
         if (hasMouseWon)
         {
             GameOverPanel.SetActive(true);
-            
         }
-        
+
         cheeseCount = MouseCheese.GetCheeseCount();
         doesCatSeeMouse = CatLineOfSight.IsCatLookingAtMouse();
         hasMouseWon = MouseCheese.HasMouseEatenALLCheese();
@@ -40,7 +43,10 @@ public class GameStatsManager : MonoBehaviour
         cheeseText.text = $"No. of Cheese -> {cheeseCount}";
         catSeesMouseText.text = $"Does Cat See Mouse?: {doesCatSeeMouse}";
         mouseWonText.text = $"Has The Mouse Won?: {hasMouseWon}";
+        string catStateString = catAIController.CurrentCatState == CatAIController.CatState.Patrolling ? "Patrolling" : "Chasing Mouse";
+        catStateText.text = $"Cat Mode: {catStateString}";
     }
+
 
     public void StartGame()
     {

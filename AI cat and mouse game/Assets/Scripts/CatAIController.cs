@@ -9,18 +9,26 @@ public class CatAIController : MonoBehaviour
     public Transform[] patrollingPoints;
     public float waitTime = 2f;
     public Rigidbody2D rb;
-    public bool isPatrolling = true;
     public CatLineOfSight lineOfSight;
+    public float pathRecalculationCooldown = 0.5f;
 
-    Path path;
-    int currentWaypoint = 0;
-    Seeker seeker;
-    Vector2 originalPosition;
-    List<Transform> unvisitedPoints;
-    bool isCalculatingPath = false;
-
+    private Path path;
+    private int currentWaypoint = 0;
+    private Seeker seeker;
+    private Vector2 originalPosition;
+    private List<Transform> unvisitedPoints;
+    private bool isCalculatingPath = false;
+    private float pathRecalculationTime = 0f;
     private Transform mouse = null;
-    private bool isRelaxing = false;
+
+    public enum CatState
+    {
+        Patrolling,
+        ChasingMouse
+    }
+
+    public CatState CurrentCatState { get; private set; }
+
 
     void Start()
     {
@@ -28,14 +36,8 @@ public class CatAIController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         originalPosition = transform.position;
         unvisitedPoints = new List<Transform>(patrollingPoints);
-        StartCoroutine(InitialWaitCoroutine());
-        lineOfSight = transform.Find("LineOfSightCheck").GetComponent<CatLineOfSight>();
-    }
-
-    IEnumerator InitialWaitCoroutine()
-    {
-        yield return new WaitForSeconds(4f);
         StartPatrolToClosestPoint();
+        lineOfSight = transform.Find("LineOfSightCheck").GetComponent<CatLineOfSight>();
     }
 
     void StartPatrolToClosestPoint()
@@ -47,10 +49,8 @@ public class CatAIController : MonoBehaviour
 
         Transform closestPoint = GetClosestPoint();
         isCalculatingPath = true;
-
         path = null;
         currentWaypoint = 0;
-
         seeker.StartPath(rb.position, closestPoint.position, OnPathComplete);
     }
 
@@ -75,27 +75,24 @@ public class CatAIController : MonoBehaviour
 
     void Update()
     {
-        if (lineOfSight != null)
+        if (lineOfSight != null && Time.time > pathRecalculationTime)
         {
-            if (lineOfSight.IsCatLookingAtMouse())
+            if (lineOfSight.IsCatLookingAtMouse() && mouse == null)
             {
                 mouse = lineOfSight.GetMouseTransform();
-                isPatrolling = false;
                 if (!isCalculatingPath)
                 {
-                    // Stop all coroutines to immediately chase the mouse
-                    StopAllCoroutines();
-                    isRelaxing = false;
                     ChaseMouse();
+                    CurrentCatState = CatState.ChasingMouse;
                 }
             }
-            else if (mouse != null)
+            else if (!lineOfSight.IsCatLookingAtMouse() && mouse != null)
             {
                 mouse = null;
-                isPatrolling = true;
-                if (!isCalculatingPath && !isRelaxing)
+                if (!isCalculatingPath)
                 {
-                    StartCoroutine(RelaxAtCurrentPosition());
+                    StartPatrolToClosestPoint();
+                    CurrentCatState = CatState.Patrolling;
                 }
             }
         }
@@ -106,117 +103,10 @@ public class CatAIController : MonoBehaviour
     {
         if (mouse != null)
         {
-            if (!isCalculatingPath)
-            {
-                Debug.Log("Starting to chase mouse...");
-                path = null;
-                seeker.StartPath(rb.position, mouse.position, OnPathComplete);
-            }
-        }
-    }
-
-    IEnumerator RelaxAtCurrentPosition()
-    {
-        isRelaxing = true;
-        yield return new WaitForSeconds(1f);  // Relax for 1 second
-        isRelaxing = false;
-        if (!isCalculatingPath)
-        {
-            StartPatrolToClosestPoint();
-        }
-    }
-
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Mouse"))
-        {
-            Destroy(other.gameObject);
-            mouse = null;
-            StartCoroutine(RelaxAtCurrentPosition());
-        }
-    }
-
-    void FixedUpdate()
-    {
-        if (mouse != null)
-        {
-            // If the mouse is still visible, continue to chase it
-            ChaseMouse();
-        }
-
-        MoveAlongPath();
-
-        if (path == null || isRelaxing)
-        {
-            return;
-        }
-
-        if (currentWaypoint >= path.vectorPath.Count)
-        {
-            path = null; // Reset the path
-            return;
-        }
-
-        // Move along the path
-        Vector2 currentPosition = rb.position;
-        Vector2 targetPosition = path.vectorPath[currentWaypoint];
-        Vector2 newPosition = Vector2.MoveTowards(currentPosition, targetPosition, speed * Time.fixedDeltaTime);
-
-        rb.MovePosition(newPosition);
-
-        // Calculate distance after moving
-        float distanceAfterMoving = Vector2.Distance(newPosition, targetPosition);
-
-        if (distanceAfterMoving < 0.1f && currentWaypoint < path.vectorPath.Count - 1)
-        {
-            currentWaypoint++;
-        }
-
-        // Flip only if moved a little towards the new waypoint
-        if (Vector2.Distance(currentPosition, targetPosition) - distanceAfterMoving > 0.01f)
-        {
-            Flip();
-        }
-    }
-
-    void MoveAlongPath()
-    {
-        if (path == null || isRelaxing || currentWaypoint >= path.vectorPath.Count)
-        {
-            return;
-        }
-
-        // Move along the path
-        Vector2 currentPosition = rb.position;
-        Vector2 targetPosition = path.vectorPath[currentWaypoint];
-        Vector2 newPosition = Vector2.MoveTowards(currentPosition, targetPosition, speed * Time.fixedDeltaTime);
-
-        rb.MovePosition(newPosition);
-
-        // Calculate distance after moving
-        float distanceAfterMoving = Vector2.Distance(newPosition, targetPosition);
-
-        if (distanceAfterMoving < 0.1f && currentWaypoint < path.vectorPath.Count - 1)
-        {
-            currentWaypoint++;
-        }
-
-        // Flip only if moved a little towards the new waypoint
-        if (Vector2.Distance(currentPosition, targetPosition) - distanceAfterMoving > 0.01f)
-        {
-            Flip();
-        }
-    }
-
-    void Flip()
-    {
-        if (rb.position.x < path.vectorPath[currentWaypoint].x)
-        {
-            transform.localScale = new Vector3(-.8f, .8f, .8f);
-        }
-        else if (rb.position.x > path.vectorPath[currentWaypoint].x)
-        {
-            transform.localScale = new Vector3(.8f, .8f, .8f);
+            path = null;
+            currentWaypoint = 0;
+            isCalculatingPath = true;
+            seeker.StartPath(rb.position, mouse.position, OnPathComplete);
         }
     }
 
@@ -226,16 +116,52 @@ public class CatAIController : MonoBehaviour
         {
             path = p;
             currentWaypoint = 0;
-            if (mouse != null)
-            {
-                // Start chasing the mouse immediately
-                ChaseMouse();
-            }
+            isCalculatingPath = false;
+            pathRecalculationTime = Time.time + pathRecalculationCooldown;
         }
-        isCalculatingPath = false;
-        // Immediately move the cat along the new path
-        MoveAlongPath();
+        else
+        {
+            Debug.LogError("Path error: " + p.error);
+        }
     }
 
+    void FixedUpdate()
+    {
+        if (path == null)
+        {
+            return;
+        }
 
+        if (currentWaypoint >= path.vectorPath.Count)
+        {
+            path = null;
+            return;
+        }
+
+        Vector2 currentPosition = rb.position;
+        Vector2 targetPosition = path.vectorPath[currentWaypoint];
+        Vector2 newPosition = Vector2.MoveTowards(currentPosition, targetPosition, speed * Time.deltaTime);
+
+        rb.MovePosition(newPosition);
+
+        if (Vector2.Distance(newPosition, targetPosition) < 0.1f)
+        {
+            currentWaypoint++;
+        }
+
+        if (currentWaypoint >= path.vectorPath.Count)
+        {
+            path = null;
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Mouse"))
+        {
+            Destroy(other.gameObject);
+            mouse = null;
+            StartPatrolToClosestPoint();
+        }
+    }
 }
